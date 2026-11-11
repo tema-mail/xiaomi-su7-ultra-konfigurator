@@ -54,10 +54,11 @@ def sobrat(proj, car, short, slug, src):
     for o in raw['interiors']:
         fs = {s: f'{src}/render/{o["id"]}--{SRC_SHOT[s]}.webp' for s in ('int', 'int2')}
         if all(os.path.exists(f) for f in fs.values()):
-            for s, f in fs.items():
-                dst = f'{proj}/{IMG}/int/{oid(o["id"])}--{s}.webp'
-                if not os.path.exists(dst): Image.open(f).convert('RGB').save(dst, 'WEBP', quality=80, method=6)
-            ints.append(oid(o['id']))
+            for pre in sorted({v['codePrefix'] for v in vers}):          # движок ищет салон с меткой версии
+                for s, f in fs.items():
+                    dst = f'{proj}/{IMG}/int/{pre}{oid(o["id"])}--{s}.webp'
+                    if not os.path.exists(dst): Image.open(f).convert('RGB').save(dst, 'WEBP', quality=80, method=6)
+                ints.append(pre + oid(o['id']))
     data = {'car': car, 'short': short, 'groups': [], 'versions': vers, 'options': options, 'have': have, 'ang': ang, 'int': ints,
             'paths': {'ext': IMG + '/ext/{code}--{shot}.webp', 'int': IMG + '/int/{code}--{shot}.webp'}, 'shots': SHOTS}
     js = json.dumps(data, ensure_ascii=False, separators=(',', ':'))
